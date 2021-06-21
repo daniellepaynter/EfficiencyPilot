@@ -105,6 +105,7 @@ class MainWindow():
         """Opens a file window where one image from each imaging session can be selected"""
         # Assume at least 2 images were selected:
         filenames = filedialog.askopenfilenames()
+
         self.im1_filename = filenames[0]
         self.im1_win = image_window(0, self.main, self.main_position, self.im1_filename)
         self.im1_win.top.bind("<Button-1>", self.edit_landmarks)
