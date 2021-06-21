@@ -23,12 +23,10 @@ ROImargin = 7
 ROIthickness = 2
 ImageSize = (512, 512)
 
-im_names = ['self.im1_filename', 'self.im2_filename', 'self.m3_filename', 'self.im4_filename', 'self.im5_filename',
-            'self.im6_filename', 'self.im7_filename', 'self.im8_filename', 'selfim9_filename', 'self.im10_filename']
-win_names = ['self.im1_win', 'self.im2_win', 'self.im3_win', 'self.im4_win', 'self.im5_win', 'self.im6_win',
-             'self.im7_win', 'self.im8_win', 'self.im9_win', 'self.im10_win']
 im_nums = [1,2,3,4,5,6,7,8,9,10]
-
+colors = ['VioletRed1', 'DarkOliveGreen1', 'SpringGreen2', 'medium spring green', 'turquoise1', 'MediumOrchid1',
+          'maroon1', 'red2', 'orange', 'yellow', 'light pink', 'thistle1', 'MediumPurple1', 'SkyBlue1', 'DeepPink2',
+          'lemon chiffon', 'snow']
 
 class MainWindow():
     """Class that runs the main options window"""
@@ -40,7 +38,7 @@ class MainWindow():
         self.landmarks = []
 
         # variable for which image is being annotated
-        self.im_var = tk.StringVar(self.main)
+        self.im_var = tk.IntVar(self.main)
         self.im_var.set(1)
 
         # Counter for which landmark is being added
@@ -173,25 +171,25 @@ class MainWindow():
             x1, y1 = (event.x - ROImargin), (event.y - ROImargin)
             x2, y2 = (event.x + ROImargin), (event.y + ROImargin)
             if self.im_var.get() == 1:
-                self.im1_landmark_handles.append(self.im1_win.canvas.create_oval(x1, y1, x2, y2, width=ROIthickness))
+                self.im1_landmark_handles.append(self.im1_win.canvas.create_oval(x1, y1, x2, y2, outline=colors[self.landmark_id], width=ROIthickness))
             elif self.im_var.get() == 2:
-                self.im2_landmark_handles.append(self.im2_win.canvas.create_oval(x1, y1, x2, y2, width=ROIthickness))
+                self.im2_landmark_handles.append(self.im2_win.canvas.create_oval(x1, y1, x2, y2, outline=colors[self.landmark_id], width=ROIthickness))
             elif self.im_var.get() == 3:
-                self.im3_landmark_handles.append(self.im3_win.canvas.create_oval(x1, y1, x2, y2, width=ROIthickness))
+                self.im3_landmark_handles.append(self.im3_win.canvas.create_oval(x1, y1, x2, y2, outline=colors[self.landmark_id], width=ROIthickness))
             elif self.im_var.get() == 4:
-                self.im4_landmark_handles.append(self.im4_win.canvas.create_oval(x1, y1, x2, y2, width=ROIthickness))
+                self.im4_landmark_handles.append(self.im4_win.canvas.create_oval(x1, y1, x2, y2, outline=colors[self.landmark_id], width=ROIthickness))
             elif self.im_var.get() == 5:
-                self.im5_landmark_handles.append(self.im5_win.canvas.create_oval(x1, y1, x2, y2, width=ROIthickness))
+                self.im5_landmark_handles.append(self.im5_win.canvas.create_oval(x1, y1, x2, y2, outline=colors[self.landmark_id], width=ROIthickness))
             elif self.im_var.get() == 6:
-                self.im6_landmark_handles.append(self.im6_win.canvas.create_oval(x1, y1, x2, y2, width=ROIthickness))
+                self.im6_landmark_handles.append(self.im6_win.canvas.create_oval(x1, y1, x2, y2, outline=colors[self.landmark_id], width=ROIthickness))
             elif self.im_var.get() == 7:
-                self.im7_landmark_handles.append(self.im7_win.canvas.create_oval(x1, y1, x2, y2, width=ROIthickness))
+                self.im7_landmark_handles.append(self.im7_win.canvas.create_oval(x1, y1, x2, y2, outline=colors[self.landmark_id], width=ROIthickness))
             elif self.im_var.get() == 8:
-                self.im8_landmark_handles.append(self.im8_win.canvas.create_oval(x1, y1, x2, y2, width=ROIthickness))
+                self.im8_landmark_handles.append(self.im8_win.canvas.create_oval(x1, y1, x2, y2, outline=colors[self.landmark_id], width=ROIthickness))
             elif self.im_var.get() == 9:
-                self.im9_landmark_handles.append(self.im9_win.canvas.create_oval(x1, y1, x2, y2, width=ROIthickness))
+                self.im9_landmark_handles.append(self.im9_win.canvas.create_oval(x1, y1, x2, y2, outline=colors[self.landmark_id], width=ROIthickness))
             elif self.im_var.get() == 10:
-                self.im10_landmark_handles.append(self.im10_win.canvas.create_oval(x1, y1, x2, y2, width=ROIthickness))
+                self.im10_landmark_handles.append(self.im10_win.canvas.create_oval(x1, y1, x2, y2, outline=colors[self.landmark_id], width=ROIthickness))
 
     def landmark_count(self):
 
