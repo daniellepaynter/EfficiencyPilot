@@ -23,6 +23,8 @@ ROImargin = 7
 ROIthickness = 2
 ImageSize = (512, 512)
 
+im_dirs = []
+
 im_nums = [1,2,3,4,5,6,7,8,9,10]
 colors = ['VioletRed1', 'DarkOliveGreen1', 'SpringGreen2', 'medium spring green', 'turquoise1', 'MediumOrchid1',
           'maroon1', 'red2', 'orange', 'yellow', 'light pink', 'thistle1', 'MediumPurple1', 'SkyBlue1', 'DeepPink2',
@@ -104,16 +106,18 @@ class MainWindow():
     def select_image_files(self):
         """Opens a file window where one image from each imaging session can be selected"""
         # Assume at least 2 images were selected:
-        filenames = filedialog.askopenfilenames()
 
-        self.im1_filename = filenames[0]
-        self.im1_win = image_window(0, self.main, self.main_position, self.im1_filename)
+        self.im_dir = filedialog.askdirectory(title="Select file")
+        im_dirs.append(self.im_dir)
+
+        self.im1_win = image_window(0, self.main, self.main_position, self.im_dir)
         self.im1_win.top.bind("<Button-1>", self.edit_landmarks)
-
-        self.im2_filename = filenames[1]
-        self.im2_win = image_window(1, self.main, self.main_position, self.im2_filename)
-        self.im2_win.top.bind("<Button-1>", self.edit_landmarks)
-
+        try:
+            self.im2_filename = filenames[1]
+            self.im2_win = image_window(1, self.main, self.main_position, self.im2_filename)
+            self.im2_win.top.bind("<Button-1>", self.edit_landmarks)
+        except:
+            pass
         # Go through try and excepts to account for unknown number of images selected:
         try:
             self.im3_filename = filenames[2]
@@ -247,28 +251,37 @@ class MainWindow():
 class image_window():
     """Class that runs the image windows"""
 
-    def __init__(self, nr, main, position, im_file_name):
+    def __init__(self, nr, main, position, im_directory):
         self.top = tk.Toplevel()
 
         # Load image from file
-
-        title_name = os.path.basename(im_file_name)
+        title_name = 'A test!'
+        #title_name = os.path.basename(im_file_name)
         self.top.title(title_name)
+        self.im_stack = []
 
-        self.im = cv2.imread(im_file_name)
-        self.im = self.im[:, :, 1]
+        for nr, filename in enumerate(os.listdir(im_directory)):
+            if filename.endswith('.tiff'):
+                self.im = cv2.imread(os.path.join(im_directory, filename))
+                self.im = self.im[:, :, 1]
+                self.im_stack.append(self.im)
+                print('hello!')
 
-        self.im = cv2.resize(self.im, ImageSize)
-        self.im_height, self.im_width = self.im.shape
+        for plane in range(len(self.im_stack)):
+            im = self.im_stack[plane]
+            im_resize = cv2.resize(im, ImageSize)
+            self.im_stack[plane] = im_resize
 
-        self.im_file_name = im_file_name
+        self.im_stack = np.array(self.im_stack)
+
+        self.im_height, self.im_width, self.im_depth = self.im_stack.shape
 
         # Create canvas for image
         self.canvas = tk.Canvas(self.top, width=self.im_width, height=self.im_height)
         self.canvas.pack()
 
         # Display image on canvas for first time
-        self.imgTk = ImageTk.PhotoImage(Image.fromarray(self.im))
+        self.imgTk = ImageTk.PhotoImage(Image.fromarray(self.im_stack))
         self.image_on_canvas = self.canvas.create_image(0, 0, anchor=tk.NW, image=self.imgTk)
 
         # Set image window position
