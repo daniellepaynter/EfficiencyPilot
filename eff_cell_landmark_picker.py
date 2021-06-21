@@ -27,6 +27,7 @@ im_names = ['self.im1_filename', 'self.im2_filename', 'self.m3_filename', 'self.
             'self.im6_filename', 'self.im7_filename', 'self.im8_filename', 'selfim9_filename', 'self.im10_filename']
 win_names = ['self.im1_win', 'self.im2_win', 'self.im3_win', 'self.im4_win', 'self.im5_win', 'self.im6_win',
              'self.im7_win', 'self.im8_win', 'self.im9_win', 'self.im10_win']
+im_nums = [1,2,3,4,5,6,7,8,9,10]
 
 
 class MainWindow():
@@ -38,7 +39,10 @@ class MainWindow():
         # ROI container
 
         self.landmarks = []
-        self.im_var = tk.IntVar()
+
+        self.im_var = tk.StringVar(self.main)
+        self.im_var.set(1)
+
         self.landmark_id = 0
 
         self.im1_landmark_handles = []
@@ -46,6 +50,11 @@ class MainWindow():
         self.im3_landmark_handles = []
         self.im4_landmark_handles = []
         self.im5_landmark_handles = []
+        self.im6_landmark_handles = []
+        self.im7_landmark_handles = []
+        self.im8_landmark_handles = []
+        self.im9_landmark_handles = []
+        self.im10_landmark_handles = []
 
         self.adding_landmarks = False
 
@@ -65,19 +74,7 @@ class MainWindow():
         self.lbl = tk.Label(self.main, text='Landmark ID is 0')
         self.lbl.pack()
 
-        self.landmark_im = tk.Radiobutton(self.main, text="Image1", variable=self.im_var, value=1)
-        self.landmark_im.pack()
-
-        self.landmark_im = tk.Radiobutton(self.main, text="Image2", variable=self.im_var, value=2)
-        self.landmark_im.pack()
-
-        self.landmark_im = tk.Radiobutton(self.main, text="Image3", variable=self.im_var, value=3)
-        self.landmark_im.pack()
-
-        self.landmark_im = tk.Radiobutton(self.main, text="Image4", variable=self.im_var, value=4)
-        self.landmark_im.pack()
-
-        self.landmark_im = tk.Radiobutton(self.main, text="Image5", variable=self.im_var, value=5)
+        self.landmark_im = tk.OptionMenu(self.main, self.im_var, *im_nums)
         self.landmark_im.pack()
 
         self.button_save_rois = tk.Button(self.main, text="Save ROIs", fg="black", command=self.save_rois)
@@ -108,19 +105,70 @@ class MainWindow():
     def select_image_files(self):
 
         filenames = filedialog.askopenfilenames()
-        for nr, im in enumerate(filenames):
-            im_names[nr] = filenames[nr]
-            win_names[nr] = image_window(nr, self.main, self.main_position, im_names[nr])
-            win_names[nr].top.bind("<Button-1>", self.edit_landmarks)
+        self.im1_filename = filenames[0]
+        self.im1_win = image_window(0, self.main, self.main_position, self.im1_filename)
+        self.im1_win.top.bind("<Button-1>", self.edit_landmarks)
+
+        self.im2_filename = filenames[1]
+        self.im2_win = image_window(1, self.main, self.main_position, self.im2_filename)
+        self.im2_win.top.bind("<Button-1>", self.edit_landmarks)
+        try:
+            self.im3_filename = filenames[2]
+            self.im3_win = image_window(2, self.main, self.main_position, self.im3_filename)
+            self.im3_win.top.bind("<Button-1>", self.edit_landmarks)
+        except:
+            pass
+        try:
+            self.im4_filename = filenames[3]
+            self.im4_win = image_window(3, self.main, self.main_position, self.im4_filename)
+            self.im4_win.top.bind("<Button-1>", self.edit_landmarks)
+        except:
+            pass
+        try:
+            self.im5_filename = filenames[4]
+            self.im5_win = image_window(4, self.main, self.main_position, self.im5_filename)
+            self.im5_win.top.bind("<Button-1>", self.edit_landmarks)
+        except:
+            pass
+        try:
+            self.im6_filename = filenames[5]
+            self.im6_win = image_window(5, self.main, self.main_position, self.im6_filename)
+            self.im6_win.top.bind("<Button-1>", self.edit_landmarks)
+        except:
+            pass
+        try:
+            self.im7_filename = filenames[6]
+            self.im7_win = image_window(6, self.main, self.main_position, self.im7_filename)
+            self.im7_win.top.bind("<Button-1>", self.edit_landmarks)
+        except:
+            pass
+        try:
+            self.im8_filename = filenames[7]
+            self.im8_win = image_window(7, self.main, self.main_position, self.im8_filename)
+            self.im8_win.top.bind("<Button-1>", self.edit_landmarks)
+        except:
+            pass
+        try:
+            self.im9_filename = filenames[8]
+            self.im9_win = image_window(8, self.main, self.main_position, self.im9_filename)
+            self.im9_win.top.bind("<Button-1>", self.edit_landmarks)
+        except:
+            pass
+        try:
+            self.im10_filename = filenames[9]
+            self.im10_win = image_window(9, self.main, self.main_position, self.im10_filename)
+            self.im10_win.top.bind("<Button-1>", self.edit_landmarks)
+        except:
+            pass
 
     def edit_landmarks(self, event):
 
         if self.adding_landmarks:
-            self.landmarks.append([event.x, event.y, self.im_var.get()])
+            im_num = int(self.im_var.get())
+            self.landmarks.append([ self.landmark_id, im_num, event.x, event.y ])
             x1, y1 = (event.x - ROImargin), (event.y - ROImargin)
             x2, y2 = (event.x + ROImargin), (event.y + ROImargin)
             im_size = (self.im1_win.im_height, self.im1_win.im_width)
-
             if self.im_var.get() == 1:
                 self.im1_landmark_handles.append(self.im1_win.canvas.create_oval(x1, y1, x2, y2, width=ROIthickness))
             elif self.im_var.get() == 2:
@@ -131,6 +179,16 @@ class MainWindow():
                 self.im4_landmark_handles.append(self.im4_win.canvas.create_oval(x1, y1, x2, y2, width=ROIthickness))
             elif self.im_var.get() == 5:
                 self.im5_landmark_handles.append(self.im5_win.canvas.create_oval(x1, y1, x2, y2, width=ROIthickness))
+            elif self.im_var.get() == 6:
+                self.im6_landmark_handles.append(self.im6_win.canvas.create_oval(x1, y1, x2, y2, width=ROIthickness))
+            elif self.im_var.get() == 7:
+                self.im7_landmark_handles.append(self.im7_win.canvas.create_oval(x1, y1, x2, y2, width=ROIthickness))
+            elif self.im_var.get() == 8:
+                self.im8_landmark_handles.append(self.im8_win.canvas.create_oval(x1, y1, x2, y2, width=ROIthickness))
+            elif self.im_var.get() == 9:
+                self.im9_landmark_handles.append(self.im9_win.canvas.create_oval(x1, y1, x2, y2, width=ROIthickness))
+            elif self.im_var.get() == 10:
+                self.im10_landmark_handles.append(self.im10_win.canvas.create_oval(x1, y1, x2, y2, width=ROIthickness))
 
     def landmark_count(self):
         self.landmark_id += 1
@@ -173,38 +231,34 @@ class MainWindow():
         np.save(filename, data_dict)
 
     def export_data(self):
-        test = self.landmarks
         n_landmarks = self.landmark_id
         im_size = (self.im1_win.im_height, self.im1_win.im_width)
         im1 = self.im1_win.im
         im2 = self.im2_win.im
-        im3 = self.im3_win.im
-        im4 = self.im4_win.im
-        im5 = self.im5_win.im
-
+        try:
+            im3 = self.im3_win.im
+        except:
+            pass
+        try:
+            im4 = self.im4_win.im
+            im5 = self.im5_win.im
+            im6 = self.im6_win_im
+            im7 = self.im7_win.im
+            im8 = self.im8_win.im
+            im9 = self.im9_win.im
+            im10 = self.im10_win_im
+        except:
+            pass
         filename = os.path.splitext(self.im1_filename)[0] + "-landmarks.csv"
         print("Exporting data to: {}".format(filename))
         with open(filename, "w") as csv_file:
             print("sep=,", file=csv_file)
-            print("ID, im_num, x, y ", file=csv_file)
-            for nr in range(n_landmarks):
-                roi_mask = np.zeros(im_size, np.uint8)
-                cv2.circle(roi_mask, (self.landmarks[nr][0], self.landmarks[nr][1]), ROImargin, 1, thickness=-1)
-                im1_data = cv2.bitwise_and(im1, im1, mask=roi_mask)
-                im1_int = np.sum(im1_data) / np.sum(roi_mask)
-                im2_data = cv2.bitwise_and(im2, im2, mask=roi_mask)
-                im2_int = np.sum(im2_data) / np.sum(roi_mask)
-                save_str = "{:4.0f}, {:4.0f}, {:1.0f}, {:7.2f}, {:7.2f}".format(self.landmarks[nr][0],
-                                                                                self.landmarks[nr][1],
-                                                                                self.landmark_ids[nr], im1_int, im2_int)
+            print("landmark_ID, im_num, x, y ", file=csv_file)
+            for nr in range(len(self.landmarks)):
+                save_str = "{}, {}, {:1.0f}, {:7.2f}".format(self.landmarks[nr][0], self.landmarks[nr][1],
+                                                                       self.landmarks[nr][2], self.landmarks[nr][3])
                 print(save_str, file=csv_file)
 
-        lm_array = np.zeros([self.landmark_id, 6])
-
-        return
-
-    #       for lm in range(self.landmarks):
-    #       pass
 
     def about(self):
         top = tk.Toplevel()
