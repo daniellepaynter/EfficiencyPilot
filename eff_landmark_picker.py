@@ -265,7 +265,7 @@ class image_window():
                 self.im = cv2.imread(os.path.join(im_directory, filename))
                 self.im = self.im[:, :, 1]
                 self.im_stack.append(self.im)
-                print('hello!')
+                print('hey!')
 
         for plane in range(len(self.im_stack)):
             im = self.im_stack[plane]
