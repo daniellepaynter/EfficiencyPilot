@@ -36,13 +36,14 @@ class MainWindow():
     def __init__(self, main):
         self.main = main
 
-        # ROI container
-
+        # landmark container
         self.landmarks = []
 
+        # variable for which image is being annotated
         self.im_var = tk.StringVar(self.main)
         self.im_var.set(1)
 
+        # Counter for which landmark is being added
         self.landmark_id = 0
 
         self.im1_landmark_handles = []
@@ -58,7 +59,7 @@ class MainWindow():
 
         self.adding_landmarks = False
 
-        # Create load and save buttons
+        # Create buttons
         self.main.title("Efficiency pilot image annotation")
         self.button_load = tk.Button(self.main, text="Select images", fg="black", command=self.select_image_files)
         self.button_load.pack()
@@ -67,18 +68,18 @@ class MainWindow():
                                              command=self.add_landmark_toggle)
         self.button_add_landmark.pack()
 
+        # Create button to change the landmark id after annotating once in each image:
         self.button_landmark_counter = tk.Button(self.main, text="Next landmark", fg="black",
                                                  command=self.landmark_count)
         self.button_landmark_counter.pack()
 
+        # Create a label for the value of the landmark counter
         self.lbl = tk.Label(self.main, text='Landmark ID is 0')
         self.lbl.pack()
 
+        # Create an options menu to select which image is being annotated
         self.landmark_im = tk.OptionMenu(self.main, self.im_var, *im_nums)
         self.landmark_im.pack()
-
-        self.button_save_rois = tk.Button(self.main, text="Save ROIs", fg="black", command=self.save_rois)
-        self.button_save_rois.pack()
 
         self.button_export_data = tk.Button(self.main, text="Export", fg="black", command=self.export_data)
         self.button_export_data.pack()
@@ -86,7 +87,7 @@ class MainWindow():
         self.button_about = tk.Button(self.main, text="About", fg="black", command=self.about)
         self.button_about.pack()
 
-        self.button_quit = tk.Button(self.main, text="Quit", fg="black")
+        self.button_quit = tk.Button(self.main, text="Quit", fg="black", command=root.destroy)
         self.button_quit.pack()
 
         # Set main window position
@@ -103,7 +104,8 @@ class MainWindow():
         self.main_position = {'x': x_main + w_main, 'y': y_main}
 
     def select_image_files(self):
-
+        """Opens a file window where one image from each imaging session can be selected"""
+        # Assume at least 2 images were selected:
         filenames = filedialog.askopenfilenames()
         self.im1_filename = filenames[0]
         self.im1_win = image_window(0, self.main, self.main_position, self.im1_filename)
@@ -112,6 +114,8 @@ class MainWindow():
         self.im2_filename = filenames[1]
         self.im2_win = image_window(1, self.main, self.main_position, self.im2_filename)
         self.im2_win.top.bind("<Button-1>", self.edit_landmarks)
+
+        # Go through try and excepts to account for unknown number of images selected:
         try:
             self.im3_filename = filenames[2]
             self.im3_win = image_window(2, self.main, self.main_position, self.im3_filename)
@@ -168,7 +172,6 @@ class MainWindow():
             self.landmarks.append([ self.landmark_id, im_num, event.x, event.y ])
             x1, y1 = (event.x - ROImargin), (event.y - ROImargin)
             x2, y2 = (event.x + ROImargin), (event.y + ROImargin)
-            im_size = (self.im1_win.im_height, self.im1_win.im_width)
             if self.im_var.get() == 1:
                 self.im1_landmark_handles.append(self.im1_win.canvas.create_oval(x1, y1, x2, y2, width=ROIthickness))
             elif self.im_var.get() == 2:
@@ -191,10 +194,12 @@ class MainWindow():
                 self.im10_landmark_handles.append(self.im10_win.canvas.create_oval(x1, y1, x2, y2, width=ROIthickness))
 
     def landmark_count(self):
+
         self.landmark_id += 1
         self.lbl.config(text=f'Landmark ID is {self.landmark_id}')
 
     def add_landmark_toggle(self):
+
         if self.adding_landmarks:
             self.adding_landmarks = False
             self.button_add_landmark.config(fg="black")
@@ -202,53 +207,8 @@ class MainWindow():
             self.adding_landmarks = True
             self.button_add_landmark.config(fg="green")
 
-    # TODO: make this functional with landmarks
-    def delete_roi_toggle(self):
-        if self.deleting_rois:
-            self.deleting_rois = False
-            self.button_delete_rois.config(fg="black")
-        else:
-            self.deleting_rois = True
-            self.button_delete_rois.config(fg="red")
-            self.modifying_ids = False
-            self.button_modify_ids.config(fg="black")
-            self.adding_rois = False
-            self.button_add_rois.config(fg="black")
-            self.adding_landmarks = False
-            self.button_add_landmark.config(fg="black")
-
-    # TODO: make this function for landmarks
-    def save_rois(self):
-        n_rois = len(self.ROIs)
-        data_mat = np.zeros((n_rois, 3))
-        for nr in range(n_rois):
-            data_mat[nr, 0] = self.ROIs[nr][0]
-            data_mat[nr, 1] = self.ROIs[nr][1]
-            data_mat[nr, 2] = self.ROIids[nr]
-        data_dict = {"roidata": data_mat}
-        filename = os.path.splitext(self.im1_filename)[0] + "-ROIs.npy"
-        print("Saving ROIs to: {}".format(filename))
-        np.save(filename, data_dict)
-
     def export_data(self):
-        n_landmarks = self.landmark_id
-        im_size = (self.im1_win.im_height, self.im1_win.im_width)
-        im1 = self.im1_win.im
-        im2 = self.im2_win.im
-        try:
-            im3 = self.im3_win.im
-        except:
-            pass
-        try:
-            im4 = self.im4_win.im
-            im5 = self.im5_win.im
-            im6 = self.im6_win_im
-            im7 = self.im7_win.im
-            im8 = self.im8_win.im
-            im9 = self.im9_win.im
-            im10 = self.im10_win_im
-        except:
-            pass
+
         filename = os.path.splitext(self.im1_filename)[0] + "-landmarks.csv"
         print("Exporting data to: {}".format(filename))
         with open(filename, "w") as csv_file:
