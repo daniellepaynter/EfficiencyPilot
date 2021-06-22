@@ -36,7 +36,8 @@ im_nums = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 colors = ['VioletRed1', 'DarkOliveGreen1', 'SpringGreen2', 'medium spring green', 'turquoise1', 'MediumOrchid1',
           'maroon1', 'red2', 'orange', 'yellow', 'light pink', 'thistle1', 'MediumPurple1', 'SkyBlue1', 'DeepPink2',
           'lemon chiffon', 'snow']
-num_timepoints = input('How many imaging timepoints will you open?')
+
+num_timepoints = int(input('How many imaging timepoints will you open?'))
 
 class MainWindow():
     """Class that runs the main options window"""
@@ -114,12 +115,12 @@ class MainWindow():
 
     def add_image_directory(self):
         """Opens a file window where one image from each imaging session can be selected"""
+        for _ in range(num_timepoints):
+            self.im_dir = filedialog.askdirectory(title="Select folder")
+            im_dirs.append(self.im_dir)
+            self.im_win = image_window(0, self.main, self.main_position, self.im_dir)
+            self.im_win.top.bind("<Button-1>", self.edit_landmarks)
 
-        self.im_dir = filedialog.askdirectory(title="Select folder")
-        im_dirs.append(self.im_dir)
-
-        self.im1_win = image_window(0, self.main, self.main_position, self.im_dir)
-        self.im1_win.top.bind("<Button-1>", self.edit_landmarks)
 
     def edit_landmarks(self, event):
         if self.adding_landmarks:
