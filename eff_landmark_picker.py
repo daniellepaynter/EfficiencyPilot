@@ -17,6 +17,7 @@ from PIL import Image, ImageTk
 import cv2
 import numpy as np
 import os
+from stack_scroll import stack_scroll
 
 # Settings
 ROImargin = 7
@@ -25,10 +26,11 @@ ImageSize = (512, 512)
 
 im_dirs = []
 
-im_nums = [1,2,3,4,5,6,7,8,9,10]
+im_nums = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 colors = ['VioletRed1', 'DarkOliveGreen1', 'SpringGreen2', 'medium spring green', 'turquoise1', 'MediumOrchid1',
           'maroon1', 'red2', 'orange', 'yellow', 'light pink', 'thistle1', 'MediumPurple1', 'SkyBlue1', 'DeepPink2',
           'lemon chiffon', 'snow']
+
 
 class MainWindow():
     """Class that runs the main options window"""
@@ -61,7 +63,8 @@ class MainWindow():
 
         # Create buttons
         self.main.title("Efficiency pilot image annotation")
-        self.button_load = tk.Button(self.main, text="Select images", fg="black", command=self.select_image_files)
+        self.button_load = tk.Button(self.main, text="Add image directory", fg="black",
+                                     command=self.add_image_directory)
         self.button_load.pack()
 
         self.button_add_landmark = tk.Button(self.main, text="Add landmarks", fg="black",
@@ -103,98 +106,61 @@ class MainWindow():
         # start info window
         self.main_position = {'x': x_main + w_main, 'y': y_main}
 
-    def select_image_files(self):
+    def add_image_directory(self):
         """Opens a file window where one image from each imaging session can be selected"""
-        # Assume at least 2 images were selected:
 
-        self.im_dir = filedialog.askdirectory(title="Select file")
+        self.im_dir = filedialog.askdirectory(title="Select folder")
         im_dirs.append(self.im_dir)
 
         self.im1_win = image_window(0, self.main, self.main_position, self.im_dir)
         self.im1_win.top.bind("<Button-1>", self.edit_landmarks)
-        try:
-            self.im2_filename = filenames[1]
-            self.im2_win = image_window(1, self.main, self.main_position, self.im2_filename)
-            self.im2_win.top.bind("<Button-1>", self.edit_landmarks)
-        except:
-            pass
-        # Go through try and excepts to account for unknown number of images selected:
-        try:
-            self.im3_filename = filenames[2]
-            self.im3_win = image_window(2, self.main, self.main_position, self.im3_filename)
-            self.im3_win.top.bind("<Button-1>", self.edit_landmarks)
-        except:
-            pass
-        try:
-            self.im4_filename = filenames[3]
-            self.im4_win = image_window(3, self.main, self.main_position, self.im4_filename)
-            self.im4_win.top.bind("<Button-1>", self.edit_landmarks)
-        except:
-            pass
-        try:
-            self.im5_filename = filenames[4]
-            self.im5_win = image_window(4, self.main, self.main_position, self.im5_filename)
-            self.im5_win.top.bind("<Button-1>", self.edit_landmarks)
-        except:
-            pass
-        try:
-            self.im6_filename = filenames[5]
-            self.im6_win = image_window(5, self.main, self.main_position, self.im6_filename)
-            self.im6_win.top.bind("<Button-1>", self.edit_landmarks)
-        except:
-            pass
-        try:
-            self.im7_filename = filenames[6]
-            self.im7_win = image_window(6, self.main, self.main_position, self.im7_filename)
-            self.im7_win.top.bind("<Button-1>", self.edit_landmarks)
-        except:
-            pass
-        try:
-            self.im8_filename = filenames[7]
-            self.im8_win = image_window(7, self.main, self.main_position, self.im8_filename)
-            self.im8_win.top.bind("<Button-1>", self.edit_landmarks)
-        except:
-            pass
-        try:
-            self.im9_filename = filenames[8]
-            self.im9_win = image_window(8, self.main, self.main_position, self.im9_filename)
-            self.im9_win.top.bind("<Button-1>", self.edit_landmarks)
-        except:
-            pass
-        try:
-            self.im10_filename = filenames[9]
-            self.im10_win = image_window(9, self.main, self.main_position, self.im10_filename)
-            self.im10_win.top.bind("<Button-1>", self.edit_landmarks)
-        except:
-            pass
 
     def edit_landmarks(self, event):
-
         if self.adding_landmarks:
             im_num = int(self.im_var.get())
-            self.landmarks.append([ self.landmark_id, im_num, event.x, event.y ])
+            self.landmarks.append([self.landmark_id, im_num, event.x, event.y])
             x1, y1 = (event.x - ROImargin), (event.y - ROImargin)
             x2, y2 = (event.x + ROImargin), (event.y + ROImargin)
             if self.im_var.get() == 1:
-                self.im1_landmark_handles.append(self.im1_win.canvas.create_oval(x1, y1, x2, y2, outline=colors[self.landmark_id], width=ROIthickness))
+                self.im1_landmark_handles.append(
+                    self.im1_win.canvas.create_oval(x1, y1, x2, y2, outline=colors[self.landmark_id],
+                                                    width=ROIthickness))
             elif self.im_var.get() == 2:
-                self.im2_landmark_handles.append(self.im2_win.canvas.create_oval(x1, y1, x2, y2, outline=colors[self.landmark_id], width=ROIthickness))
+                self.im2_landmark_handles.append(
+                    self.im2_win.canvas.create_oval(x1, y1, x2, y2, outline=colors[self.landmark_id],
+                                                    width=ROIthickness))
             elif self.im_var.get() == 3:
-                self.im3_landmark_handles.append(self.im3_win.canvas.create_oval(x1, y1, x2, y2, outline=colors[self.landmark_id], width=ROIthickness))
+                self.im3_landmark_handles.append(
+                    self.im3_win.canvas.create_oval(x1, y1, x2, y2, outline=colors[self.landmark_id],
+                                                    width=ROIthickness))
             elif self.im_var.get() == 4:
-                self.im4_landmark_handles.append(self.im4_win.canvas.create_oval(x1, y1, x2, y2, outline=colors[self.landmark_id], width=ROIthickness))
+                self.im4_landmark_handles.append(
+                    self.im4_win.canvas.create_oval(x1, y1, x2, y2, outline=colors[self.landmark_id],
+                                                    width=ROIthickness))
             elif self.im_var.get() == 5:
-                self.im5_landmark_handles.append(self.im5_win.canvas.create_oval(x1, y1, x2, y2, outline=colors[self.landmark_id], width=ROIthickness))
+                self.im5_landmark_handles.append(
+                    self.im5_win.canvas.create_oval(x1, y1, x2, y2, outline=colors[self.landmark_id],
+                                                    width=ROIthickness))
             elif self.im_var.get() == 6:
-                self.im6_landmark_handles.append(self.im6_win.canvas.create_oval(x1, y1, x2, y2, outline=colors[self.landmark_id], width=ROIthickness))
+                self.im6_landmark_handles.append(
+                    self.im6_win.canvas.create_oval(x1, y1, x2, y2, outline=colors[self.landmark_id],
+                                                    width=ROIthickness))
             elif self.im_var.get() == 7:
-                self.im7_landmark_handles.append(self.im7_win.canvas.create_oval(x1, y1, x2, y2, outline=colors[self.landmark_id], width=ROIthickness))
+                self.im7_landmark_handles.append(
+                    self.im7_win.canvas.create_oval(x1, y1, x2, y2, outline=colors[self.landmark_id],
+                                                    width=ROIthickness))
             elif self.im_var.get() == 8:
-                self.im8_landmark_handles.append(self.im8_win.canvas.create_oval(x1, y1, x2, y2, outline=colors[self.landmark_id], width=ROIthickness))
+                self.im8_landmark_handles.append(
+                    self.im8_win.canvas.create_oval(x1, y1, x2, y2, outline=colors[self.landmark_id],
+                                                    width=ROIthickness))
             elif self.im_var.get() == 9:
-                self.im9_landmark_handles.append(self.im9_win.canvas.create_oval(x1, y1, x2, y2, outline=colors[self.landmark_id], width=ROIthickness))
+                self.im9_landmark_handles.append(
+                    self.im9_win.canvas.create_oval(x1, y1, x2, y2, outline=colors[self.landmark_id],
+                                                    width=ROIthickness))
             elif self.im_var.get() == 10:
-                self.im10_landmark_handles.append(self.im10_win.canvas.create_oval(x1, y1, x2, y2, outline=colors[self.landmark_id], width=ROIthickness))
+                self.im10_landmark_handles.append(
+                    self.im10_win.canvas.create_oval(x1, y1, x2, y2, outline=colors[self.landmark_id],
+                                                     width=ROIthickness))
 
     def landmark_count(self):
 
@@ -219,9 +185,8 @@ class MainWindow():
             print("landmark_ID, im_num, x, y ", file=csv_file)
             for nr in range(len(self.landmarks)):
                 save_str = "{}, {}, {:1.0f}, {:7.2f}".format(self.landmarks[nr][0], self.landmarks[nr][1],
-                                                                       self.landmarks[nr][2], self.landmarks[nr][3])
+                                                             self.landmarks[nr][2], self.landmarks[nr][3])
                 print(save_str, file=csv_file)
-
 
     def about(self):
         top = tk.Toplevel()
@@ -256,21 +221,10 @@ class image_window():
 
         # Load image from file
         title_name = 'A test!'
-        #title_name = os.path.basename(im_file_name)
+        # title_name = os.path.basename(im_file_name)
         self.top.title(title_name)
-        self.im_stack = []
 
-        for nr, filename in enumerate(os.listdir(im_directory)):
-            if filename.endswith('.tiff'):
-                self.im = cv2.imread(os.path.join(im_directory, filename))
-                self.im = self.im[:, :, 1]
-                self.im_stack.append(self.im)
-                print('hey!')
-
-        for plane in range(len(self.im_stack)):
-            im = self.im_stack[plane]
-            im_resize = cv2.resize(im, ImageSize)
-            self.im_stack[plane] = im_resize
+        self.im_stack = stack_scroll(im_directory, title_name)
 
         self.im_stack = np.array(self.im_stack)
 
