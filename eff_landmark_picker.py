@@ -115,10 +115,10 @@ class MainWindow():
 
     def add_image_directory(self):
         """Opens a file window where one image from each imaging session can be selected"""
-        for _ in range(num_timepoints):
+        for timepoint in range(num_timepoints):
             self.im_dir = filedialog.askdirectory(title="Select folder")
             im_dirs.append(self.im_dir)
-            self.im_win = image_window(0, self.main, self.main_position, self.im_dir)
+            self.im_win = image_window(timepoint, self.main, self.main_position, self.im_dir)
             self.im_win.top.bind("<Button-1>", self.edit_landmarks)
 
 
@@ -222,8 +222,8 @@ class MainWindow():
 
 class image_window():
     """Class that runs the image windows"""
-    def __init__(self, nr, main, position, im_directory):
-
+    def __init__(self, timepoint, main, position, im_directory):
+        self.timepoint = timepoint
         # Load in all tiffs in im_directory, store in a list
         self.im_list = []
         for nr, filename in enumerate(os.listdir(im_directory)):
@@ -237,14 +237,14 @@ class image_window():
 
         # Make the window and give it a boring title
         self.top = tk.Toplevel()
-        self.top.title = 'Image Window'
+        self.top.title(str(self.timepoint))
 
         # Set up a slider to choose with z plane to display
         self.z_slider = tk.Scale(self.top, orient='horizontal', resolution=1, from_=0, to=self.nr_z_planes,
                                  command=self.update_im)
         self.z_slider.pack(side=BOTTOM)
 
-        # idk
+        # Set starting image
         self.im = self.im_list[self.z_slider.get()]
 
         # Create canvas to display image on
@@ -255,17 +255,13 @@ class image_window():
         self.imgTk = ImageTk.PhotoImage(Image.fromarray(self.im))
         self.image_on_canvas = self.canvas.create_image(0,0, anchor=tk.NW, image=self.imgTk)
 
-
-        #self.top.update()
         x_temp = int(position['x']) + (self.top.winfo_width()*nr)
         print(x_temp)
         y_temp = int(position['y'])
         self.top.geometry('+{}+{}'.format(x_temp, y_temp))
 
-        print('I am confused')
 
     def update_im(self, val):
-        print(val)
         self.im = self.im_list[int(val)]
         self.imgTk = ImageTk.PhotoImage(Image.fromarray(self.im))
         self.image_on_canvas = self.canvas.create_image(0,0, anchor=tk.NW, image=self.imgTk)
