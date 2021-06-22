@@ -13,6 +13,7 @@ modified to handle images in one channel from multiple imaging sessions
 # Imports
 import tkinter as tk
 from tkinter import filedialog
+from tkinter import *
 from PIL import Image, ImageTk
 import cv2
 import numpy as np
@@ -22,6 +23,7 @@ from matplotlib.backends.backend_tkagg import (
     FigureCanvasTkAgg, NavigationToolbar2Tk)
 from matplotlib.backend_bases import key_press_handler
 from matplotlib.figure import Figure
+from matplotlib.widgets import Slider, Button, RadioButtons
 
 # Settings
 ROImargin = 7
@@ -34,7 +36,7 @@ im_nums = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 colors = ['VioletRed1', 'DarkOliveGreen1', 'SpringGreen2', 'medium spring green', 'turquoise1', 'MediumOrchid1',
           'maroon1', 'red2', 'orange', 'yellow', 'light pink', 'thistle1', 'MediumPurple1', 'SkyBlue1', 'DeepPink2',
           'lemon chiffon', 'snow']
-
+num_timepoints = input('How many imaging timepoints will you open?')
 
 class MainWindow():
     """Class that runs the main options window"""
@@ -219,20 +221,50 @@ class MainWindow():
 
 class image_window():
     """Class that runs the image windows"""
-
     def __init__(self, nr, main, position, im_directory):
+
+        # Load in all tiffs in im_directory, store in a list
+        self.im_list = []
+        for nr, filename in enumerate(os.listdir(im_directory)):
+            if filename.endswith('.tiff'):
+                im = cv2.imread(os.path.join(im_directory, filename))
+                im = im[:, :, 1]
+                self.im_list.append(im)
+
+        self.nr_z_planes = len(self.im_list)
+        print(self.nr_z_planes)
+
+        # Make the window and give it a boring title
         self.top = tk.Toplevel()
-        print('hello!')
+        self.top.title = 'Image Window'
 
-        title_name = os.path.basename(im_directory)
-        self.top.title(title_name)
+        # Set up a slider to choose with z plane to display
+        self.z_slider = tk.Scale(self.top, orient='horizontal', resolution=1, from_=0, to=self.nr_z_planes,
+                                 command=self.print_val)
+        self.z_slider.pack(side=BOTTOM)
 
-        self.im_stack = stack_scroll(im_directory, title_name)
-        print (self.im_stack.shape)
-        fig = Figure()
-        canvas = FigureCanvasTkAgg(fig, root)
-        canvas.get_tk_widget().pack()
+        # idk
+        self.im = self.im_list[self.z_slider.get()]
 
+        # Create canvas to display image on
+        self.canvas = tk.Canvas(self.top)
+        self.canvas.pack()
+
+        # Display image on canvas
+        self.imgTk = ImageTk.PhotoImage(Image.fromarray(self.im))
+        self.image_on_canvas = self.canvas.create_image(0,0, anchor=tk.NW, image=self.imgTk)
+
+
+        #self.top.update()
+        x_temp = int(position['x']) + (self.top.winfo_width()*nr)
+        print(x_temp)
+        y_temp = int(position['y'])
+        self.top.geometry('+{}+{}'.format(x_temp, y_temp))
+
+        print('I am confused')
+    def print_val(self, val):
+        print(val)
+        print('we are here!')
 
 
 

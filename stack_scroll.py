@@ -37,35 +37,35 @@ def stack_scroll(im_directory, im_title):
     im_stack = np.array(im_stack)
     im_stack = np.transpose(im_stack, axes=[2, 1, 0])
 
-   # class IndexTracker():
+    #class IndexTracker():
 
     #    def __init__(self, ax, stack, im_title):
-     #       self.ax = ax
-      #      self.ax.set_title(im_title)
-       #     self.stack = stack
-        #    self.rows, self.cols, self.slices = stack.shape
-         #   self.ind = self.slices // 2
+    #       self.ax = ax
+    #      self.ax.set_title(im_title)
+    #     self.stack = stack
+    #    self.rows, self.cols, self.slices = stack.shape
+    #   self.ind = self.slices // 2
 
-        #    self.im = ax.imshow(self.stack[:, :, self.ind])
-         #   self.update()
+    #    self.im = ax.imshow(self.stack[:, :, self.ind])
+    #   self.update()
 
     #    def on_scroll(self, event):
-     #       print("%s %s" % (event.button, event.step))
-      #      if event.button == 'up':
-       #         self.ind = (self.ind + 1) % self.slices
-        #    else:
-         #       self.ind = (self.ind - 1) % self.slices
-          #  self.update()
+    #       print("%s %s" % (event.button, event.step))
+    #      if event.button == 'up':
+    #         self.ind = (self.ind + 1) % self.slices
+    #    else:
+    #       self.ind = (self.ind - 1) % self.slices
+    #  self.update()
 
-       # def update(self):
-        #    self.im.set_data(self.stack[:, :, self.ind])
-         #   self.ax.set_ylabel('slice %s' % self.ind)
-          #  self.im.axes.figure.canvas.draw()
+    # def update(self):
+    #    self.im.set_data(self.stack[:, :, self.ind])
+    #   self.ax.set_ylabel('slice %s' % self.ind)
+    #  self.im.axes.figure.canvas.draw()
 
-    #fig, ax = plt.subplots(1, 1)
-    #tracker = IndexTracker(ax, im_stack, im_title)
+    # fig, ax = plt.subplots(1, 1)
+    # tracker = IndexTracker(ax, im_stack, im_title)
 
-    #fig.canvas.mpl_connect('scroll_event', tracker.on_scroll)
-    #plt.show()
+    # fig.canvas.mpl_connect('scroll_event', tracker.on_scroll)
+    # plt.show()
 
     return im_stack
