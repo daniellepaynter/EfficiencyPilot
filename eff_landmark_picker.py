@@ -240,7 +240,7 @@ class image_window():
 
         # Set up a slider to choose with z plane to display
         self.z_slider = tk.Scale(self.top, orient='horizontal', resolution=1, from_=0, to=self.nr_z_planes,
-                                 command=self.print_val)
+                                 command=self.update_im)
         self.z_slider.pack(side=BOTTOM)
 
         # idk
@@ -262,9 +262,13 @@ class image_window():
         self.top.geometry('+{}+{}'.format(x_temp, y_temp))
 
         print('I am confused')
-    def print_val(self, val):
+
+    def update_im(self, val):
         print(val)
-        print('we are here!')
+        self.im = self.im_list[int(val)]
+        self.imgTk = ImageTk.PhotoImage(Image.fromarray(self.im))
+        self.image_on_canvas = self.canvas.create_image(0,0, anchor=tk.NW, image=self.imgTk)
+        self.top.update()
 
 
 
