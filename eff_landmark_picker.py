@@ -18,6 +18,10 @@ import cv2
 import numpy as np
 import os
 from stack_scroll import stack_scroll
+from matplotlib.backends.backend_tkagg import (
+    FigureCanvasTkAgg, NavigationToolbar2Tk)
+from matplotlib.backend_bases import key_press_handler
+from matplotlib.figure import Figure
 
 # Settings
 ROImargin = 7
@@ -218,25 +222,33 @@ class image_window():
 
     def __init__(self, nr, main, position, im_directory):
         self.top = tk.Toplevel()
-
+        print('hello!')
         # Load image from file
-        title_name = im_directory
-        # title_name = os.path.basename(im_file_name)
+        title_name = os.path.basename(im_directory)
         self.top.title(title_name)
 
         self.im_stack = stack_scroll(im_directory, title_name)
+        print (self.im_stack.axes)
 
-        self.im_stack = np.array(self.im_stack)
+        self.im_height, self.im_width, self.im_depth = [512, 512, 42]
 
-        self.im_height, self.im_width, self.im_depth = self.im_stack.shape
+        self.canvas = FigureCanvasTkAgg(self.im_stack)
+        self.canvas.draw()
+        print ('line 239')
+
+        self.canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
+
+        self.toolbar = NavigationToolbar2Tk(canvas, root)
+        self.toolbar.update()
+        self.canvas.get_tk_widget().pack(side=tkinter.TOP, fill=tkinter.BOTH, expand=1)
 
         # Create canvas for image
-        self.canvas = tk.Canvas(self.top, width=self.im_width, height=self.im_height)
-        self.canvas.pack()
+    #    self.canvas = tk.Canvas(self.top, width=self.im_width, height=self.im_height)
+     #   self.canvas.pack()
 
         # Display image on canvas for first time
-        self.imgTk = ImageTk.PhotoImage(Image.fromarray(self.im_stack))
-        self.image_on_canvas = self.canvas.create_image(0, 0, anchor=tk.NW, image=self.imgTk)
+    #    self.imgTk = ImageTk.PhotoImage(Image.fromarray(self.im_stack))
+     #   self.image_on_canvas = self.canvas.create_image(0, 0, anchor=tk.NW, image=self.imgTk)
 
         # Set image window position
         self.top.update()
