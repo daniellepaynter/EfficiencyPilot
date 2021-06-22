@@ -129,8 +129,6 @@ class MainWindow():
             x1, y1 = (event.x - ROImargin), (event.y - ROImargin)
             x2, y2 = (event.x + ROImargin), (event.y + ROImargin)
 
-
-
             if self.im_var.get() == 1:
                 self.im1_landmark_handles.append(
                     self.im_win.canvas.create_oval(x1, y1, x2, y2, outline=colors[self.landmark_id],
