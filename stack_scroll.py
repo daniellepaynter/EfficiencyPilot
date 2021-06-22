@@ -8,7 +8,7 @@ scrolled through using the mouse wheel.
 Based largely off matplotlib's Image Slices Viewer
 (https://matplotlib.org/stable/gallery/event_handling/image_slices_viewer.html)
 
-
+m
 @author: dpaynter
 """
 # Set directory to get images from, and title of images
