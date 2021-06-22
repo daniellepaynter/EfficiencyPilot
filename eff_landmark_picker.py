@@ -220,7 +220,7 @@ class image_window():
         self.top = tk.Toplevel()
 
         # Load image from file
-        title_name = 'A test!'
+        title_name = im_directory
         # title_name = os.path.basename(im_file_name)
         self.top.title(title_name)
 
