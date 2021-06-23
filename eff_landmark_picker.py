@@ -226,8 +226,9 @@ class image_window():
         self.imgTk = ImageTk.PhotoImage(Image.fromarray(self.im))
         self.image_on_canvas = self.canvas.create_image(0, 0, anchor=tk.NW, image=self.imgTk)
 
-        x_temp = int(position['x']) + (self.top.winfo_width() * nr)
-        print(x_temp)
+        # Set image window position
+        self.top.update()
+        x_temp = int(position['x']) + (self.top.winfo_width() * self.timepoint)
         y_temp = int(position['y'])
         self.top.geometry('+{}+{}'.format(x_temp, y_temp))
 
