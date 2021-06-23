@@ -59,16 +59,10 @@ class MainWindow():
         # Counter for which landmark is being added
         self.landmark_id = 0
 
-        self.im1_landmark_handles = []
-        self.im2_landmark_handles = []
-        self.im3_landmark_handles = []
-        self.im4_landmark_handles = []
-        self.im5_landmark_handles = []
-        self.im6_landmark_handles = []
-        self.im7_landmark_handles = []
-        self.im8_landmark_handles = []
-        self.im9_landmark_handles = []
-        self.im10_landmark_handles = []
+        # List of lists to append landmark handles:
+        self.im_landmark_handles = []
+        for tp in range(num_timepoints):
+            self.im_landmark_handles.append([])
 
         self.adding_landmarks = False
 
@@ -82,7 +76,7 @@ class MainWindow():
                                              command=self.add_landmark_toggle)
         self.button_add_landmark.pack()
 
-        # Create button to change the landmark id after annotating once in each image:
+        # Create button to change the landmark id after annotating a landmark in all timepoints:
         self.button_landmark_counter = tk.Button(self.main, text="Next landmark", fg="black",
                                                  command=self.landmark_count)
         self.button_landmark_counter.pack()
@@ -119,60 +113,24 @@ class MainWindow():
 
     def add_image_directory(self):
         """Opens a file window where one image from each imaging session can be selected"""
-        for timepoint in range(num_timepoints):
+        for tp in range(num_timepoints):
             self.im_dir = filedialog.askdirectory(title="Select folder")
             im_dirs.append(self.im_dir)
-            self.im_win = image_window(timepoint, self.main, self.main_position, self.im_dir)
+            self.im_win = image_window(tp, self.main, self.main_position, self.im_dir)
             self.im_win.top.bind("<Button-1>", self.edit_landmarks)
-
 
     def edit_landmarks(self, event):
         if self.adding_landmarks:
-            im_num = int(self.im_var.get()-1)
+            im_num = int(self.im_var.get())
             self.landmarks.append([self.landmark_id, im_num, event.x, event.y])
             x1, y1 = (event.x - ROImargin), (event.y - ROImargin)
             x2, y2 = (event.x + ROImargin), (event.y + ROImargin)
 
-            if self.im_var.get() == 1:
-                self.im1_landmark_handles.append(
-                    self.im_win.canvas.create_oval(x1, y1, x2, y2, outline=colors[self.landmark_id],
-                                                    width=ROIthickness))
-            elif self.im_var.get() == 2:
-                self.im2_landmark_handles.append(
-                    self.im2_win.canvas.create_oval(x1, y1, x2, y2, outline=colors[self.landmark_id],
-                                                    width=ROIthickness))
-            elif self.im_var.get() == 3:
-                self.im3_landmark_handles.append(
-                    self.im3_win.canvas.create_oval(x1, y1, x2, y2, outline=colors[self.landmark_id],
-                                                    width=ROIthickness))
-            elif self.im_var.get() == 4:
-                self.im4_landmark_handles.append(
-                    self.im4_win.canvas.create_oval(x1, y1, x2, y2, outline=colors[self.landmark_id],
-                                                    width=ROIthickness))
-            elif self.im_var.get() == 5:
-                self.im5_landmark_handles.append(
-                    self.im5_win.canvas.create_oval(x1, y1, x2, y2, outline=colors[self.landmark_id],
-                                                    width=ROIthickness))
-            elif self.im_var.get() == 6:
-                self.im6_landmark_handles.append(
-                    self.im6_win.canvas.create_oval(x1, y1, x2, y2, outline=colors[self.landmark_id],
-                                                    width=ROIthickness))
-            elif self.im_var.get() == 7:
-                self.im7_landmark_handles.append(
-                    self.im7_win.canvas.create_oval(x1, y1, x2, y2, outline=colors[self.landmark_id],
-                                                    width=ROIthickness))
-            elif self.im_var.get() == 8:
-                self.im8_landmark_handles.append(
-                    self.im8_win.canvas.create_oval(x1, y1, x2, y2, outline=colors[self.landmark_id],
-                                                    width=ROIthickness))
-            elif self.im_var.get() == 9:
-                self.im9_landmark_handles.append(
-                    self.im9_win.canvas.create_oval(x1, y1, x2, y2, outline=colors[self.landmark_id],
-                                                    width=ROIthickness))
-            elif self.im_var.get() == 10:
-                self.im10_landmark_handles.append(
-                    self.im10_win.canvas.create_oval(x1, y1, x2, y2, outline=colors[self.landmark_id],
-                                                     width=ROIthickness))
+            self.im_landmark_handles[im_num].append(
+                self.im_win.canvas.create_oval(x1, y1, x2, y2, outline=colors[self.landmark_id],
+                                               width=ROIthickness))
+
+
 
     def landmark_count(self):
 
@@ -227,6 +185,7 @@ class MainWindow():
 
 class image_window():
     """Class that runs the image windows"""
+
     def __init__(self, timepoint, main, position, im_directory):
         self.timepoint = timepoint
         # Load in all tiffs in im_directory, store in a list
@@ -245,7 +204,8 @@ class image_window():
         self.top.title(str(self.timepoint))
 
         # Set up a slider to choose with z plane to display
-        self.z_slider = tk.Scale(self.top, orient='horizontal', resolution=1, length=300, from_=0, to=self.nr_z_planes-1,
+        self.z_slider = tk.Scale(self.top, orient='horizontal', resolution=1, length=300, from_=0,
+                                 to=self.nr_z_planes - 1,
                                  command=self.update_im)
         self.z_slider.pack(side=BOTTOM)
 
@@ -258,21 +218,18 @@ class image_window():
 
         # Display image on canvas
         self.imgTk = ImageTk.PhotoImage(Image.fromarray(self.im))
-        self.image_on_canvas = self.canvas.create_image(0,0, anchor=tk.NW, image=self.imgTk)
+        self.image_on_canvas = self.canvas.create_image(0, 0, anchor=tk.NW, image=self.imgTk)
 
-        x_temp = int(position['x']) + (self.top.winfo_width()*nr)
+        x_temp = int(position['x']) + (self.top.winfo_width() * nr)
         print(x_temp)
         y_temp = int(position['y'])
         self.top.geometry('+{}+{}'.format(x_temp, y_temp))
 
-
     def update_im(self, val):
         self.im = self.im_list[int(val)]
         self.imgTk = ImageTk.PhotoImage(Image.fromarray(self.im))
-        self.image_on_canvas = self.canvas.create_image(0,0, anchor=tk.NW, image=self.imgTk)
+        self.image_on_canvas = self.canvas.create_image(0, 0, anchor=tk.NW, image=self.imgTk)
         self.top.update()
-
-
 
 
 # Set up main window and start main loop
