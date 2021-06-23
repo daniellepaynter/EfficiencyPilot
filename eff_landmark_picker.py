@@ -113,11 +113,12 @@ class MainWindow():
 
     def add_image_directory(self):
         """Opens a file window where one image from each imaging session can be selected"""
+        self.im_win_list = []
         for tp in range(num_timepoints):
             self.im_dir = filedialog.askdirectory(title="Select folder")
             im_dirs.append(self.im_dir)
-            self.im_win = image_window(tp, self.main, self.main_position, self.im_dir)
-            self.im_win.top.bind("<Button-1>", self.edit_landmarks)
+            self.im_win_list.append(image_window(tp, self.main, self.main_position, self.im_dir))
+            self.im_win_list[tp].top.bind("<Button-1>", self.edit_landmarks)
 
     def edit_landmarks(self, event):
         if self.adding_landmarks:
@@ -127,7 +128,7 @@ class MainWindow():
             x2, y2 = (event.x + ROImargin), (event.y + ROImargin)
 
             self.im_landmark_handles[im_num].append(
-                self.im_win.canvas.create_oval(x1, y1, x2, y2, outline=colors[self.landmark_id],
+                self.im_win_list[im_num].canvas.create_oval(x1, y1, x2, y2, outline=colors[self.landmark_id],
                                                width=ROIthickness))
 
 
