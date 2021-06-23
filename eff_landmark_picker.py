@@ -28,7 +28,7 @@ from matplotlib.widgets import Slider, Button, RadioButtons
 # Settings
 ROImargin = 7
 ROIthickness = 2
-ImageSize = (512, 512)
+ImageSize = (300,300)
 
 im_dirs = []
 
@@ -203,16 +203,18 @@ class image_window():
         self.top.title(str(self.timepoint))
 
         # Set up a slider to choose with z plane to display
-        self.z_slider = tk.Scale(self.top, orient='horizontal', resolution=1, length=300, from_=0,
+        self.z_slider = tk.Scale(self.top, orient='horizontal', resolution=1, length=ImageSize[1], from_=0,
                                  to=self.nr_z_planes - 1,
                                  command=self.update_im)
         self.z_slider.pack(side=BOTTOM)
 
         # Set starting image
         self.im = self.im_list[self.z_slider.get()]
+        self.im = cv2.resize(self.im, ImageSize)
+        self.im_height, self.im_width = self.im.shape
 
         # Create canvas to display image on
-        self.canvas = tk.Canvas(self.top)
+        self.canvas = tk.Canvas(self.top, height=self.im_height, width=self.im_width)
         self.canvas.pack()
 
         # Display image on canvas
@@ -226,6 +228,8 @@ class image_window():
 
     def update_im(self, val):
         self.im = self.im_list[int(val)]
+        self.im = cv2.resize(self.im, ImageSize)
+        self.im_height, self.im_width = self.im.shape
         self.imgTk = ImageTk.PhotoImage(Image.fromarray(self.im))
         self.image_on_canvas = self.canvas.create_image(0, 0, anchor=tk.NW, image=self.imgTk)
         self.top.update()
