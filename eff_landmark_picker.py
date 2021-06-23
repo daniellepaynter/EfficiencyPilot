@@ -17,6 +17,7 @@ from tkinter import *
 from PIL import Image, ImageTk
 import cv2
 import os
+import stack_scroll
 
 # Settings
 ROImargin = 7
