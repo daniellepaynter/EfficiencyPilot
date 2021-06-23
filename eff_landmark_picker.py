@@ -38,6 +38,10 @@ colors = ['VioletRed1', 'DarkOliveGreen1', 'SpringGreen2', 'medium spring green'
           'lemon chiffon', 'snow']
 
 num_timepoints = int(input('How many imaging timepoints will you open?'))
+im_nums = []
+for tp in range(num_timepoints):
+    im_nums.append(tp)
+
 
 class MainWindow():
     """Class that runs the main options window"""
@@ -50,7 +54,7 @@ class MainWindow():
 
         # variable for which image is being annotated
         self.im_var = tk.IntVar(self.main)
-        self.im_var.set(1)
+        self.im_var.set(0)
 
         # Counter for which landmark is being added
         self.landmark_id = 0
