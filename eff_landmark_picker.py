@@ -16,32 +16,36 @@ from tkinter import filedialog
 from tkinter import *
 from PIL import Image, ImageTk
 import cv2
-import numpy as np
 import os
-from stack_scroll import stack_scroll
-from matplotlib.backends.backend_tkagg import (
-    FigureCanvasTkAgg, NavigationToolbar2Tk)
-from matplotlib.backend_bases import key_press_handler
-from matplotlib.figure import Figure
-from matplotlib.widgets import Slider, Button, RadioButtons
 
 # Settings
 ROImargin = 7
 ROIthickness = 2
-ImageSize = (300,300)
+ImageSize = (300, 300)
 
 im_dirs = []
 
-im_nums = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 colors = ['VioletRed1', 'DarkOliveGreen1', 'SpringGreen2', 'medium spring green', 'turquoise1', 'MediumOrchid1',
           'maroon1', 'red2', 'orange', 'yellow', 'light pink', 'thistle1', 'MediumPurple1', 'SkyBlue1', 'DeepPink2',
-          'lemon chiffon', 'snow']
+          'lemon chiffon', 'snow','VioletRed1', 'DarkOliveGreen1', 'SpringGreen2', 'medium spring green', 'turquoise1', 'MediumOrchid1',
+          'maroon1', 'red2', 'orange', 'yellow', 'light pink', 'thistle1', 'MediumPurple1', 'SkyBlue1', 'DeepPink2',
+          'lemon chiffon', 'snow', 'VioletRed1', 'DarkOliveGreen1', 'SpringGreen2', 'medium spring green', 'turquoise1', 'MediumOrchid1',
+          'maroon1', 'red2', 'orange', 'yellow', 'light pink', 'thistle1', 'MediumPurple1', 'SkyBlue1', 'DeepPink2',
+          'lemon chiffon']
+
+landmark_circle_data = []
 
 save_data = input('Which mouse + location are you opening? This will name the exported CSV:')
 num_timepoints = int(input('How many imaging timepoints will you open?'))
 im_nums = []
+
 for tp in range(num_timepoints):
     im_nums.append(tp)
+
+# List of lists to append landmark handles:
+im_landmark_handles = []
+for tp in range(num_timepoints):
+    im_landmark_handles.append([])
 
 
 class MainWindow():
@@ -60,10 +64,7 @@ class MainWindow():
         # Counter for which landmark is being added
         self.landmark_id = 0
 
-        # List of lists to append landmark handles:
-        self.im_landmark_handles = []
-        for tp in range(num_timepoints):
-            self.im_landmark_handles.append([])
+
 
         self.adding_landmarks = False
 
@@ -124,12 +125,15 @@ class MainWindow():
     def edit_landmarks(self, event):
         if self.adding_landmarks:
             im_num = int(self.im_var.get())
-            self.landmarks.append([self.landmark_id, im_num, event.x, event.y, self.im_win_list[im_num].z_slider.get()])
+            z_num = self.im_win_list[im_num].z_slider.get()
+            self.landmarks.append([self.landmark_id, im_num, event.x, event.y, z_num])
             x1, y1 = (event.x - ROImargin), (event.y - ROImargin)
             x2, y2 = (event.x + ROImargin), (event.y + ROImargin)
-            self.im_landmark_handles[im_num].append(
+
+            im_landmark_handles[im_num].append(
                 self.im_win_list[im_num].canvas.create_oval(x1, y1, x2, y2, outline=colors[self.landmark_id],
                                                             width=ROIthickness))
+            landmark_circle_data.append([x1, y1, x2, y2, self.landmark_id, z_num])
 
     def landmark_count(self):
 
@@ -154,7 +158,8 @@ class MainWindow():
             print("landmark_ID, im_num, x, y, z ", file=csv_file)
             for nr in range(len(self.landmarks)):
                 save_str = "{}, {}, {:1.0f}, {:7.2f}, {}".format(self.landmarks[nr][0], self.landmarks[nr][1],
-                                                             self.landmarks[nr][2], self.landmarks[nr][3], self.landmarks[nr][4])
+                                                                 self.landmarks[nr][2], self.landmarks[nr][3],
+                                                                 self.landmarks[nr][4])
                 print(save_str, file=csv_file)
 
     def about(self):
@@ -232,7 +237,14 @@ class image_window():
         self.im_height, self.im_width = self.im.shape
         self.imgTk = ImageTk.PhotoImage(Image.fromarray(self.im))
         self.image_on_canvas = self.canvas.create_image(0, 0, anchor=tk.NW, image=self.imgTk)
+        self.landmark_vals = []
+        for lm in range(len(landmark_circle_data)):
+            if landmark_circle_data[lm][5] == self.z_slider.get():
+                self.landmark_vals.append(landmark_circle_data[lm])
+        for lm in self.landmark_vals:
+            self.canvas.create_oval(lm[0], lm[1], lm[2], lm[3], outline=colors[lm[4]], width=ROIthickness)
         self.top.update()
+
 
 
 # Set up main window and start main loop
