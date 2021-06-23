@@ -15,4 +15,4 @@ First, the code asks for an input of how many timepoints to open -- enter an int
 After entering this, a GUI pops up. Clicking "Add image directory" opens a file dialog where you should navigate to the directory with the stack of the earliest timepoint.   
 A stack will load in one window with a slider bar to move through the stack. Then, the file dialog returns, and you can select the next timepoint's directory, etc.  
 
-When all 
+When all windows are open, click toggle button 'Add landmarks'. It will turn green.
