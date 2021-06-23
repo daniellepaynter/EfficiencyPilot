@@ -37,6 +37,7 @@ colors = ['VioletRed1', 'DarkOliveGreen1', 'SpringGreen2', 'medium spring green'
           'maroon1', 'red2', 'orange', 'yellow', 'light pink', 'thistle1', 'MediumPurple1', 'SkyBlue1', 'DeepPink2',
           'lemon chiffon', 'snow']
 
+save_data = input('Which mouse + location are you opening? This will name the exported CSV:')
 num_timepoints = int(input('How many imaging timepoints will you open?'))
 im_nums = []
 for tp in range(num_timepoints):
@@ -123,15 +124,12 @@ class MainWindow():
     def edit_landmarks(self, event):
         if self.adding_landmarks:
             im_num = int(self.im_var.get())
-            self.landmarks.append([self.landmark_id, im_num, event.x, event.y])
+            self.landmarks.append([self.landmark_id, im_num, event.x, event.y, self.im_win_list[im_num].z_slider.get()])
             x1, y1 = (event.x - ROImargin), (event.y - ROImargin)
             x2, y2 = (event.x + ROImargin), (event.y + ROImargin)
-
             self.im_landmark_handles[im_num].append(
                 self.im_win_list[im_num].canvas.create_oval(x1, y1, x2, y2, outline=colors[self.landmark_id],
-                                               width=ROIthickness))
-
-
+                                                            width=ROIthickness))
 
     def landmark_count(self):
 
@@ -149,14 +147,14 @@ class MainWindow():
 
     def export_data(self):
 
-        filename = os.path.splitext(self.im1_filename)[0] + "-landmarks.csv"
+        filename = im_dirs[0] + '/' + save_data + "-landmarks.csv"
         print("Exporting data to: {}".format(filename))
         with open(filename, "w") as csv_file:
             print("sep=,", file=csv_file)
-            print("landmark_ID, im_num, x, y ", file=csv_file)
+            print("landmark_ID, im_num, x, y, z ", file=csv_file)
             for nr in range(len(self.landmarks)):
-                save_str = "{}, {}, {:1.0f}, {:7.2f}".format(self.landmarks[nr][0], self.landmarks[nr][1],
-                                                             self.landmarks[nr][2], self.landmarks[nr][3])
+                save_str = "{}, {}, {:1.0f}, {:7.2f}, {}".format(self.landmarks[nr][0], self.landmarks[nr][1],
+                                                             self.landmarks[nr][2], self.landmarks[nr][3], self.landmarks[nr][4])
                 print(save_str, file=csv_file)
 
     def about(self):
