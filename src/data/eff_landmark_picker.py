@@ -69,7 +69,7 @@ class MainWindow():
         self.adding_landmarks = False
 
         # Create buttons
-        self.main.title("Efficiency pilot image annotation")
+        self.main.title(save_data)
         self.button_load = tk.Button(self.main, text="Add image directory", fg="black",
                                      command=self.add_image_directory)
         self.button_load.pack()
@@ -156,7 +156,7 @@ class MainWindow():
 
     def export_data(self):
 
-        filename = self.im_dir + '/' + save_data + "-landmarks.csv"
+        filename = self.im_dir + '/' + save_data + "_landmarks.csv"
         print("Exporting data to: {}".format(filename))
         with open(filename, "w") as csv_file:
             print("sep=,", file=csv_file)
@@ -208,10 +208,10 @@ class image_window():
         self.nr_z_planes = len(self.planes_list)
         print("Timepoint {} has {} z-planes.".format(timepoint, self.nr_z_planes))
 
-        # Make the window and give it a boring title
+        # Make the window and give it a boring-but-useful title
+        #(title is used below, in "update_im," to match landmarks to proper image windows)
         self.top = tk.Toplevel()
         self.top.title(str(self.timepoint))
-        #TODO give images loc and/or date titles
 
         # Set up a slider to choose with z plane to display
         self.z_slider = tk.Scale(self.top, orient='horizontal', resolution=1, length=ImageSize[1], from_=0,
