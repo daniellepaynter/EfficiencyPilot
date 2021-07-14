@@ -1,4 +1,4 @@
-﻿efficiency_pilot test edit
+﻿efficiency_pilot 
 ==============================
 ### Repository used for the "efficiency pilot" experiment, as part of the TTT project.
 This repo contains: notebooks (currently not used), reports (contains 'figures' folder, and may contain other overviews/reports/summaries in the future), and src (contains code used to process data and produce figures).
