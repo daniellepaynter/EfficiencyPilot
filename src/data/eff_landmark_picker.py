@@ -135,7 +135,7 @@ class MainWindow():
             im_landmark_handles[im_num].append(
                 self.im_win_list[im_num].canvas.create_oval(x1, y1, x2, y2, outline=colors[self.landmark_id],
                                                             width=ROIthickness))
-            landmark_circle_data.append([x1, y1, x2, y2, self.landmark_id, z_num])
+            landmark_circle_data.append([x1, y1, x2, y2, self.landmark_id, z_num, im_num])
 
     def landmark_count(self):
 
@@ -198,19 +198,20 @@ class image_window():
     def __init__(self, timepoint, main, position, im_directory):
         self.timepoint = timepoint
         # Load in all tiffs in im_directory, store in a list
-        self.im_list = []
+        self.planes_list = []
         for nr, filename in enumerate(os.listdir(im_directory)):
             if filename.endswith('.tiff'):
                 im = cv2.imread(os.path.join(im_directory, filename))
                 im = im[:, :, 1]
-                self.im_list.append(im)
+                self.planes_list.append(im)
 
-        self.nr_z_planes = len(self.im_list)
+        self.nr_z_planes = len(self.planes_list)
         print("Timepoint {} has {} z-planes.".format(timepoint, self.nr_z_planes))
 
         # Make the window and give it a boring title
         self.top = tk.Toplevel()
         self.top.title(str(self.timepoint))
+        #TODO give images loc and/or date titles
 
         # Set up a slider to choose with z plane to display
         self.z_slider = tk.Scale(self.top, orient='horizontal', resolution=1, length=ImageSize[1], from_=0,
@@ -219,7 +220,7 @@ class image_window():
         self.z_slider.pack(side=BOTTOM)
 
         # Set starting image
-        self.im = self.im_list[self.z_slider.get()]
+        self.im = self.planes_list[self.z_slider.get()]
         self.im = cv2.resize(self.im, ImageSize)
         self.im_height, self.im_width = self.im.shape
 
@@ -238,7 +239,7 @@ class image_window():
         self.top.geometry('+{}+{}'.format(x_temp, y_temp))
 
     def update_im(self, val):
-        self.im = self.im_list[int(val)]
+        self.im = self.planes_list[int(val)]
         self.im = cv2.resize(self.im, ImageSize)
         self.im_height, self.im_width = self.im.shape
         self.imgTk = ImageTk.PhotoImage(Image.fromarray(self.im))
@@ -246,12 +247,11 @@ class image_window():
         self.landmark_vals = []
         for lm in range(len(landmark_circle_data)):
             if landmark_circle_data[lm][5] == self.z_slider.get():
-                self.landmark_vals.append(landmark_circle_data[lm])
+                if int(self.top.title()) == int(landmark_circle_data[lm][6]):
+                    self.landmark_vals.append(landmark_circle_data[lm])
         for lm in self.landmark_vals:
             self.canvas.create_oval(lm[0], lm[1], lm[2], lm[3], outline=colors[lm[4]], width=ROIthickness)
         self.top.update()
-        #TODO make this only update the proper window (as is, landmarks for im0 z26 also show up at im1 z26)
-
 
 
 # Set up main window and start main loop
