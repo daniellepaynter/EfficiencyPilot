@@ -1,0 +1,3 @@
+run("Enhance Contrast", "saturated=0.35");
+run("Smooth");
+run("RGB Color");

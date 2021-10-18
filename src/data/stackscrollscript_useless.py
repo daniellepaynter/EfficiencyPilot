@@ -22,4 +22,4 @@ def stack_scroll(im_directory, im_title):
     return im_stack
 
 
-test = stack_scroll(r'I:\Danielle Paynter\InVivoTTTPilots\efficiency_spread_pilot\data\processed\DP_210429\2P\210609\loc5\2_smooth_contrast_FIJI\Ch1', 'hehe')
+im3_stack = stack_scroll(r'I:\Danielle Paynter\InVivoTTTPilots\efficiency_pilot\data\processed\DP_210519A\210624\loc4\2_smooth_contrast_FIJI\Ch1', 'hehe')
