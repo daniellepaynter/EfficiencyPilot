@@ -24,8 +24,11 @@ ROIid_ratio = 1
 ImageSize = (512,512)
 IDcolors = ["#0000FF","#FF0000","#00FF00"]
 list_ims = []
-# List to hold variables needed to run the canvas.create_oval command in the update_im function
-roi_data = []
+
+# List to hold variables needed to run the canvas.create_oval command in the update_im function.
+# This variable will be overwritten as an empty list, if "Load_ROIs" is used.
+
+
 
 
 class MainWindow():
@@ -43,7 +46,8 @@ class MainWindow():
         self.adding_rois = False
         self.deleting_rois = False
         self.modifying_ids = False
-
+        self.roi_data = []
+        
         # Create load and save buttons
         self.main.title("TTT 2P image annotation")
         self.button_load = tk.Button( self.main, text="Select directories", fg="black", command=self.select_dirs )
@@ -130,7 +134,8 @@ class MainWindow():
                 else:
                     self.ROIids.append(0)
                     ROIid = 0
-                roi_data.append([x1, y1, x2, y2, z, ROIid])
+                    
+                self.roi_data.append(  [x1, y1, x2, y2, z, ROIid]  )
                 
                 self.gfp_ROIhandles.append( self.gfp_win.canvas.create_oval( x1, y1, x2, y2, outline=IDcolors[self.ROIids[-1]], width=ROIthickness ) )
                 self.tom_ROIhandles.append( self.tom_win.canvas.create_oval( x1, y1, x2, y2, outline=IDcolors[self.ROIids[-1]], width=ROIthickness ) )
@@ -146,6 +151,8 @@ class MainWindow():
                 del self.gfp_ROIhandles[nr]
                 del self.tom_ROIhandles[nr]
                 del self.rgb_ROIhandles[nr]
+                del self.roi_data[nr]
+                update_im(self.rgb_win.z_slider.get())
         if self.modifying_ids:
             nr = self.find_closeby_roi(event.x, event.y, self.rgb_win.z_slider.get())
             if nr is not None:
@@ -153,12 +160,14 @@ class MainWindow():
                 self.gfp_win.canvas.delete(self.gfp_ROIhandles[nr])
                 self.tom_win.canvas.delete(self.tom_ROIhandles[nr])
                 self.rgb_win.canvas.delete(self.rgb_ROIhandles[nr])
+                z = self.rgb_win.z_slider.get()
                 x1, y1 = ( self.ROIs[nr][0] - ROImargin ), ( self.ROIs[nr][1] - ROImargin )
                 x2, y2 = ( self.ROIs[nr][0] + ROImargin ), ( self.ROIs[nr][1] + ROImargin )
                 self.gfp_ROIhandles[nr] = ( self.gfp_win.canvas.create_oval( x1, y1, x2, y2, outline=IDcolors[self.ROIids[nr]], width=ROIthickness ) )
                 self.tom_ROIhandles[nr] = ( self.tom_win.canvas.create_oval( x1, y1, x2, y2, outline=IDcolors[self.ROIids[nr]], width=ROIthickness ) )
                 self.rgb_ROIhandles[nr] = ( self.rgb_win.canvas.create_oval( x1, y1, x2, y2, outline=IDcolors[self.ROIids[nr]], width=ROIthickness ) )
-
+                self.roi_data[nr] =([x1, y1, x2, y2, z, self.ROIids[nr]])
+                    
     def find_closeby_roi(self, x, y, z):
         for nr,(_x,_y,_z) in enumerate(self.ROIs):
             if abs(_x-x)<ROImargin and abs(_y-y)<ROImargin and abs(_z-z)<4:
@@ -211,13 +220,14 @@ class MainWindow():
             y = int(data_mat[nr,1])
             z = int(data_mat[nr,3])
             roi_id = int(data_mat[nr,2])
-            self.ROIs.append( [x, y] )
+            self.ROIs.append( [x, y, z] )
             x1, y1 = ( x - ROImargin ), ( y - ROImargin )
             x2, y2 = ( x + ROImargin ), ( y + ROImargin )
             self.ROIids.append(roi_id)
             self.gfp_ROIhandles.append( self.gfp_win.canvas.create_oval( x1, y1, x2, y2, outline=IDcolors[self.ROIids[-1]], width=ROIthickness ) )
             self.tom_ROIhandles.append( self.tom_win.canvas.create_oval( x1, y1, x2, y2, outline=IDcolors[self.ROIids[-1]], width=ROIthickness ) )
             self.rgb_ROIhandles.append( self.rgb_win.canvas.create_oval( x1, y1, x2, y2, outline=IDcolors[self.ROIids[-1]], width=ROIthickness ) )
+            self.roi_data.append([x1, y1, x2, y2, z, roi_id])
 
     def save_rois(self):
         n_rois = len(self.ROIs)
@@ -228,7 +238,7 @@ class MainWindow():
             data_mat[nr,3] = self.ROIs[nr][2]
             data_mat[nr,2] = self.ROIids[nr]
         data_dict = { "roidata": data_mat}
-        filename = os.path.splitext(self.gfp_filename)[0] + "-ROIs.npy"
+        filename = os.path.join(os.path.commonpath([self.gfp_dirname, self.tom_dirname]),  im_title + "_ROIs.npy")
         print("Saving ROIs to: {}".format(filename))
         np.save(filename,data_dict)
 
@@ -256,6 +266,7 @@ class MainWindow():
                 tom_int = np.sum(tom_data) / np.sum(roi_mask)
                 save_str = "{:4.0f}, {:4.0f}, {:1.0f}, {}, {:7.2f}, {:7.2f}".format( self.ROIs[nr][0], self.ROIs[nr][1], self.ROIs[nr][2], self.ROIids[nr], gfp_int, tom_int )
                 print(save_str, file=csv_file)
+                
 
     def about(self):
         top = tk.Toplevel()
@@ -345,7 +356,7 @@ class image_window():
         x_temp = int(position['x']) + (self.top.winfo_width()*nr)
         y_temp = int(position['y'])
         self.top.geometry('+{}+{}'.format(x_temp, y_temp))
-
+    
 def update_im(val):
     for chan in list_ims:
         chan.im = chan.planes_list[int(val)]
@@ -354,13 +365,15 @@ def update_im(val):
         chan.imgTk = ImageTk.PhotoImage(Image.fromarray(chan.im))
         chan.image_on_canvas = chan.canvas.create_image(0, 0, anchor=tk.NW, image=chan.imgTk)
         chan.roi_vals = []
-        for roi in range(len(roi_data)):
-            if roi_data[roi][4] == list_ims[2].z_slider.get():
-                chan.roi_vals.append(roi_data[roi])
+        for roi in range(len(mainwin.roi_data)):
+            if mainwin.roi_data[roi][4] == list_ims[2].z_slider.get():
+                chan.roi_vals.append(mainwin.roi_data[roi])
         for roi in chan.roi_vals:
             chan.canvas.create_oval(roi[0], roi[1], roi[2], roi[3], outline=IDcolors[roi[5]], width=ROIthickness)
         chan.top.update()
+
+
 # Set up main window and start main loop
 root = tk.Tk()
-MainWindow(root)
+mainwin = MainWindow(root)
 root.mainloop()
