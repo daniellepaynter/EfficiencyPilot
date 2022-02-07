@@ -13,7 +13,7 @@ import sys
 import os.path
 import importlif as il
 
-im_folder = r'I:\Danielle Paynter\InVivoTTTPilots\efficiency_pilot\data\processed\DP_210429\2P\210602\loc1\6_z'
+im_folder = r'I:\Danielle Paynter\InVivoTTTPilots\efficiency_pilot\data\processed\DP_210520\210628\loc6\6_z'
 ims = os.listdir(im_folder)
 im_list = []
 for it, im in enumerate(ims):

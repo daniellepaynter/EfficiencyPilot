@@ -24,7 +24,7 @@ def elp(save_data, num_timepoints):
     # Settings
         ROImargin = 7
         ROIthickness = 2
-        ImageSize = (300, 300)
+        ImageSize = (400, 400)
         import tkinter as tk
 
         # List of colors to use as landmark outlines
@@ -86,11 +86,21 @@ def elp(save_data, num_timepoints):
                 self.button_landmark_counter = tk.Button(self.main, text="Next landmark", fg="black",
                                                          command=self.landmark_count)
                 self.button_landmark_counter.pack()
+                
+                self.button_landmark_backspace = tk.Button(self.main, text="Previous landmark", fg="black",
+                                                           command=self.landmark_backspace)
+                self.button_landmark_backspace.pack()
+                
         
                 # Create a label for the value of the landmark counter
                 self.lbl = tk.Label(self.main, text='Landmark ID is 0')
                 self.lbl.pack()
-        
+                
+                # Create a button to delete the current landmark
+                self.button_del_landmark = tk.Button(self.main, text='Delete current landmark', fg="black",
+                                                     command=self.del_landmark)
+                self.button_del_landmark.pack()
+                
                 # Create an options menu to select which image is being annotated
                 self.landmark_im = tk.OptionMenu(self.main, self.im_var, *im_nums, command=self.update_active_im)
                 self.landmark_im.pack()
@@ -148,7 +158,17 @@ def elp(save_data, num_timepoints):
                 self.landmark_id += 1
                 self.lbl.config(text=f'Landmark ID is {self.landmark_id}')
         
-        
+            def landmark_backspace(self):
+                
+                self.landmark_id -= 1
+                self.lbl.config(text=f'Landmark ID is {self.landmark_id}')
+                
+            def del_landmark(self):
+                
+                lm_to_del = self.landmark_id
+                self.landmarks = [i for i in self.landmarks if i[0] != lm_to_del]
+              
+                
             def update_active_im(self, val):
                 self.im_lbl.config(text=f'Annotating image {self.im_var.get()}')
         
@@ -163,18 +183,19 @@ def elp(save_data, num_timepoints):
         
             def export_data(self):
                 global filename
-                filename = os.path.join(os.path.commonpath(self.im_dir_list), (save_data + "_landmarks.xlsx"))
+                filename = os.path.join(os.path.commonpath(self.im_dir_list), (save_data + "_landmarks.csv"))
                 print("Exporting data to: {}".format(filename))
-                with open(filename, "w") as xlsx_file:
-                    print("sep=,", file=xlsx_file)
-                    print("landmark_ID,im_num,x,y,z", file=xlsx_file)
+                with open(filename, "w") as csv_file:
+                    print("sep=,", file=csv_file)
+                    print("landmark_ID,im_num,x,y,z", file=csv_file)
                     for nr in range(len(self.landmarks)):
                         save_str = "{}, {}, {:1.0f}, {:7.2f}, {}".format(self.landmarks[nr][0], self.landmarks[nr][1],
                                                                          self.landmarks[nr][2], self.landmarks[nr][3],
                                                                          self.landmarks[nr][4])
-                        print(save_str, file=xlsx_file)
+                        print(save_str, file=csv_file)
         
             def about(self):
+                #TODO: Update the "about" to include new buttons
                 top = tk.Toplevel()
                 top.title("About this application...")
                 msg = tk.Message(top,
